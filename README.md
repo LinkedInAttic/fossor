@@ -1,5 +1,5 @@
 # Fossor
-<div style="float:right;"><img src="https://github.com/linkedin/fossor/raw/fossor_logo.jpg" width="400" align="right"/><div style="text-align:center;padding:5px;">Fossor is "one who digs" in Latin.</div></div>
+<div style="float:right;"><img src="https://github.com/linkedin/fossor/raw/master/fossor_logo.jpg" width="400" align="right"/><div style="text-align:center;padding:5px;">Fossor is "one who digs" in Latin.</div></div>
 A plugin oriented tool for automating the investigation of broken hosts and services.
 
 ## Why?
