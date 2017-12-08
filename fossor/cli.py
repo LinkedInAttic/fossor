@@ -19,17 +19,18 @@ default_plugin_dir = '/opt/fossor'
 
 @click.command(context_settings=dict(ignore_unknown_options=True, allow_extra_args=True, help_option_names=['-h', '--help']))  # noqa: C901
 @click.pass_context
-@click.option('-p', '--product', help="Product to investigate.")
-@click.option('--pid', help="Pid to investigate.")
+@click.option('-p', '--pid', help='Pid to investigate.')
+@click.option('--product', help='Product to investigate.')
 @click.option('--plugin-dir', default=default_plugin_dir, help=f'Import all plugins from this directory. Default dir: {default_plugin_dir}')
-@click.option("--days", default=2, help="Start from X days ago, defaults to 2 days. Plugins may optionally implement and use this.")
+@click.option('--hours', default=1, help='Sets start-time to X hours ago, defaults to 24 hours. Plugins may optionally implement and use this.')
+@click.option('-r', '--report', default='StdOut', help='Report Plugin to run.')
 @click.option('--start-time', default='', help='Plugins may optionally implement and use this.')
 @click.option('--end-time', default='', help='Plugins may optionally implement and use this. Defaults to now.')
 @click.option('-t', '--time-out', default=600, help='Default timeout for plugins.')
 @click.option('-d', '--debug', is_flag=True)
 @click.option('-v', '--verbose', is_flag=True)
 @click.option('--no-truncate', is_flag=True)
-def main(context, product, pid, plugin_dir, days, start_time, end_time, time_out, debug, verbose, no_truncate):
+def main(context, pid, product, plugin_dir, hours, report, start_time, end_time, time_out, debug, verbose, no_truncate):
     """Fossor is a plugin oriented tool for automating the investigation of broken hosts and services.
 
     \b
@@ -78,7 +79,7 @@ def main(context, product, pid, plugin_dir, days, start_time, end_time, time_out
     if start_time:
         start_time = (cal.parseDT(start_time)[0]).timestamp()
     else:
-        start_time = (datetime.now() - timedelta(days=days)).timestamp()
+        start_time = (datetime.now() - timedelta(hours=hours)).timestamp()
     f.add_variable('start_time', str(start_time))
     if end_time:
         end_time = (cal.parseDT(end_time)[0]).timestamp()
@@ -90,7 +91,7 @@ def main(context, product, pid, plugin_dir, days, start_time, end_time, time_out
     f.add_plugins(plugin_dir)
 
     log.debug("Starting fossor")
-    return f.run()
+    return f.run(report=report)
 
 
 if __name__ == '__main__':

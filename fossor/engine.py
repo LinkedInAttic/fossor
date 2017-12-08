@@ -22,6 +22,8 @@ import fossor.checks.check
 import fossor.reports
 import fossor.reports.report
 
+from fossor.utils.misc import psutil_exceptions
+
 
 class Fossor(object):
     '''
@@ -141,13 +143,11 @@ class Fossor(object):
         if pid != pgid:
             raise ValueError(f"Trying to terminate a pid that is not a pgid leader. pid: {pid}, pgid: {pgid}.")  # This should never happen
 
-        process_exceptions = (ProcessLookupError, PermissionError, psutil.AccessDenied, psutil.ZombieProcess, psutil.NoSuchProcess)
-
         # Try these signals to kill the process group
         for s in (signal.SIGTERM, signal.SIGKILL):
             try:
                 children = psutil.Process().children(recursive=True)
-            except process_exceptions:
+            except psutil_exceptions:
                 continue  # Process is already dead
 
             if len(children) > 0:
@@ -155,7 +155,7 @@ class Fossor(object):
                     self.log.warning(f"Issuing signal {s} to process group {pgid} because it has run for too long.")
                     os.killpg(pgid, s)
                     time.sleep(1)
-                except process_exceptions:
+                except psutil_exceptions:
                     pass
                 except PermissionError:  # Occurs if process has already exited on MacOS
                     pass
@@ -208,6 +208,7 @@ class Fossor(object):
                 time.sleep(.1)
 
             with queue_lock:
+                output_queue.put(('Stats', f'Ran {len(plugins)} plugins.'))
                 output_queue.put(('EOF', 'EOF'))  # Indicate the queue is finished
 
             return output_queue
@@ -312,6 +313,12 @@ class Fossor(object):
         output_queue = self._run_plugins_parallel(self.check_plugins)
 
         # Run Report
-        Report_Plugin = [plugin for plugin in self.report_plugins if report == plugin.get_name()][0]
+        try:
+            Report_Plugin = [plugin for plugin in self.report_plugins if report.lower() == plugin.get_name().lower()].pop()
+        except IndexError:
+            message = f"Report_Plugin: {report}, was not found. Possibly reports are: {[plugin.get_name() for plugin in self.report_plugins]}"
+            self.log.critical(message)
+            raise ValueError(message)
+
         report_plugin = Report_Plugin()
         return report_plugin.run(variables=self.variables, report_input=output_queue)

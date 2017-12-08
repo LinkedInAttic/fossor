@@ -6,12 +6,6 @@ from abc import abstractmethod
 from fossor.plugin import Plugin
 
 
-class UnsupportedPlatformException(Exception):
-    '''UnsupportedPlatformException is raised when the target `Check` is not supported on
-    the target host/platform.'''
-    pass
-
-
 class Check(Plugin):
 
     @abstractmethod

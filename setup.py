@@ -15,11 +15,11 @@ except IOError:
 
 setup(
     name='fossor',
-    version='0.0.1',
+    version='1.0.0',
     description=description,
     long_description=description,
-    # url='https://github.com/linkedin/fossor',
-    author='LinkedIn',
+    url='https://github.com/linkedin/fossor',
+    author='Steven R. Callister',
     author_email='scallist@linkedin.com',
     license='License :: OSI Approved :: BSD License',
     packages=find_packages(),

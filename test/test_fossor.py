@@ -37,7 +37,7 @@ def test_variable_plugin_whitelist():
     f = Fossor()
     f.add_variable('timeout', 1)
     assert len(f.variable_plugins) > 2
-    whitelist = ['Hostname', 'Exe']
+    whitelist = ['Hostname', 'PidExe']
     f.run(variable_plugin_whitelist=whitelist)
     assert len(f.variable_plugins) == 2
 

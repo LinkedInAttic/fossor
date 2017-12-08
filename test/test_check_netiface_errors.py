@@ -4,7 +4,6 @@
 import mock
 import pytest
 
-from fossor.checks.check import UnsupportedPlatformException
 from fossor.checks.netiface_errors import NetIFace
 
 
@@ -21,25 +20,6 @@ def test_parse_sar():
     assert sar.txcarr == '4096.00'
 
 
-@mock.patch('platform.system')
-def test_run_invalid_system(system_mock):
-    """Assert that run() raises a `UnsupportedPlatformException` should the host platform not run Linux."""
-
-    system_mock.return_value = 'AmigaOS Kickstart 1.3'
-    with pytest.raises(UnsupportedPlatformException):
-        NetIFace().run({})
-
-
-@mock.patch('os.path.isdir')
-def test_run_invalid_nic(isdir_mock):
-    """Assert that we encounter an UnsupportedPlatformException when providing an unsupported NIC."""
-
-    isdir_mock.return_value = False
-
-    with pytest.raises(UnsupportedPlatformException):
-        NetIFace().run({'nic': 'USRobotics Courier 14.4'})
-
-
 @mock.patch('fossor.plugin.Plugin.shell_call')
 @mock.patch('platform.system')
 @mock.patch('os.path.isdir')
@@ -54,4 +34,4 @@ def test_disk_usage(isdir_mock, system_mock, sc_mock):
     sc_mock.return_value = out, err, return_code
 
     c = NetIFace().run({})
-    assert c == 'key=txdrop, interface=bond0 has surpassed threshold. value=1.0\n'
+    assert c == 'stat=txdrop, interface=ppp0 has surpassed threshold. value=1.0\n'

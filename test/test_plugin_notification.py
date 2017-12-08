@@ -44,4 +44,5 @@ def test_crash_not_verbose():
     f.variable_plugins = set()
     f.add_variable('verbose', False)
     result = f.run(report='DictObject')
+    result.pop('Stats')
     assert len(result) == 0

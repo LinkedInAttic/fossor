@@ -11,7 +11,7 @@ from datetime import datetime
 
 log = logging.getLogger(__name__)
 
-process_exceptions = (ProcessLookupError, PermissionError, psutil.AccessDenied, psutil.ZombieProcess, psutil.NoSuchProcess)
+psutil_exceptions = (ProcessLookupError, PermissionError, psutil.AccessDenied, psutil.ZombieProcess, psutil.NoSuchProcess)
 
 
 def comparetimerange(t, start_time, end_time) -> int:
@@ -55,14 +55,14 @@ def get_subprocess_names():
 
     try:
         children_processes = current_process.children(recursive=True)
-    except process_exceptions:
+    except psutil_exceptions:
         pass
 
     children = []
     for child in children_processes:
         try:
             children.append(child.name())
-        except process_exceptions:
+        except psutil_exceptions:
             pass
     children.reverse()
     return children
