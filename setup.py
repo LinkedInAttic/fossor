@@ -24,19 +24,20 @@ setup(
     license='License :: OSI Approved :: BSD License',
     packages=find_packages(),
     install_requires=[
-        'flake8==3.5.0',
+        'asciietch==1.0.1',
         'click==6.7',
         'psutil==5.4.1',
-        'pytest-timeout==1.2.0',
         'setproctitle==1.1.10',
         'requests==2.18.4',
-        'mock==2.0.0',
         'humanfriendly==4.4.1',
         'parsedatetime==2.4',
         'PTable==0.9.2',
     ],
     tests_require=[
-        'pytest==3.0.6',
+        'pytest>=3.0.6',
+        'flake8>=3.5.0',
+        'mock>=2.0.0'
+        'pytest-timeout>=1.2.0',
     ],
     entry_points={
         'console_scripts': [

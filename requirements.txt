@@ -1,3 +1,4 @@
+asciietch==1.0.0
 flake8==3.5.0
 click==6.7
 psutil==5.4.1

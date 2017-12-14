@@ -4,7 +4,7 @@ A plugin oriented tool for automating the investigation of broken hosts and serv
 
 ## Why?
 Many of the initial troubleshooting tasks humans perform during an oncall escalation are the same between escalations. Fossor is a tool for automating these investigation steps. Common investigation steps can be placed into plugins that then report back to the user if they have unexpected output when Fossor is run. Unlike humans which perform tasks in serial, Fossor runs its plugins in parallel as separate processes. Output is streamed back asynchronously to the user for immediate interpretation as each plugin finishes.
-### Examples of common tasks:
+### Examples of common investigative tasks:
 Checking for:
 - New errors in a process's logs
 - New dmesg messages
