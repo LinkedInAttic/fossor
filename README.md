@@ -41,6 +41,16 @@ sudo yum install python36u-pip
 sudo yum install python36u-devel
 ```
 
+#### Ubuntu 17.10
+Install tested against Ubuntu 17.10, which includes a Python 3.6 system installation.
+
+```bash
+sudo apt-get install python3-dev
+sudo apt-get install python3-venv
+sudo apt-get install gcc
+pip install --upgrade pip wheel # or install these updates into your virtualenv
+```
+
 ### Install Fossor
 Once the requirements from above are installed, install Fossor using one of the commands below:
 ##### Install system-wide
