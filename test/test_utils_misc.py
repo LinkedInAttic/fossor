@@ -4,12 +4,15 @@
 import sys
 import time
 import logging
+import pytest
 import unittest
 
 from datetime import datetime
+from importlib import reload
 from unittest.mock import patch
-from fossor.checks.dmesg import Dmesg
+from fossor.checks import dmesg
 from fossor.utils.misc import iswithintimerange
+from fossor.utils.misc import common_path
 from fossor.utils.misc import comparetimerange
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -73,8 +76,23 @@ def test_get_variables():
     '''Confirm we get the correct variables back if an exception occurs.'''
     with patch('fossor.plugin.Plugin.shell_call') as patched_shell_call:
         patched_shell_call.side_effect = Exception('foobar')
-        d = Dmesg()
-        variables = {}
-        variables['verbose'] = True
-        result = d.run_helper(variables)
-        assert "args: ('/usr/bin/dmesg',)" in result
+        with patch('fossor.utils.misc.common_path', return_value='/usr/bin/dmesg'):
+            reload(dmesg)
+            d = dmesg.Dmesg()
+            variables = {}
+            variables['verbose'] = True
+            result = d.run_helper(variables)
+            assert "args: ('/usr/bin/dmesg',)" in result
+
+
+def test_common_path_found():
+    '''Assert that the binary is found on the filesystem.'''
+    with patch('os.path.exists', return_value=True):
+        assert common_path(['/usr/bin/dmesg', '/bin/dmesg']) == '/usr/bin/dmesg'
+
+
+def test_common_path_is_not_found():
+    '''Assert that the binary is not present the filesystem.'''
+    with patch('os.path.exists', return_value=False):
+        with pytest.raises(FileNotFoundError):
+            common_path(['amiga/1200/GuruMeditationError'])

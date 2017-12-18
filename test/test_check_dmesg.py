@@ -3,8 +3,9 @@
 
 import sys
 import logging
-from fossor.checks.dmesg import Dmesg
 from io import StringIO
+from importlib import reload
+from fossor.checks import dmesg
 from unittest.mock import patch
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -22,25 +23,29 @@ example_dmesg_output = '''[2047964.712926] usb 2-1.3.4: New USB device strings: 
 
 
 def test_dmesg():
-    variables = {}
-    d = Dmesg()
-    with patch('fossor.plugin.Plugin.shell_call') as mocked_shell_call:
-        text = StringIO(initial_value=example_dmesg_output)
-        mocked_shell_call.return_value = (text, '', 0)
-        result = d.run(variables)
-        assert 'high-speed' in result
+    with patch('fossor.utils.misc.common_path', return_value='/usr/bin/dmesg'):
+        reload(dmesg)
+        variables = {}
+        d = dmesg.Dmesg()
+        with patch('fossor.plugin.Plugin.shell_call') as mocked_shell_call:
+            text = StringIO(initial_value=example_dmesg_output)
+            mocked_shell_call.return_value = (text, '', 0)
+            result = d.run(variables)
+            assert 'high-speed' in result
 
 
 def test_dmesg_with_start_end_times():
     variables = {}
     variables['start_time'] = 1509647158.0
     variables['end_time'] = 1509647160.0
-    d = Dmesg()
-    with patch('fossor.plugin.Plugin.shell_call') as mocked_shell_call:
-        with patch('fossor.checks.dmesg.Dmesg._get_boot_time') as mocked_get_boot_time:
-            mocked_get_boot_time.return_value = 1509664739.8043845 - 2069605.89
-            text = StringIO(initial_value=example_dmesg_output)
-            mocked_shell_call.return_value = (text, '', 0)
-            result = d.run(variables)
-            assert 'USB disconnect, device number 39' in result
-            assert len(result.splitlines()) == 1
+    with patch('fossor.utils.misc.common_path', return_value='/usr/bin/dmesg'):
+        reload(dmesg)
+        d = dmesg.Dmesg()
+        with patch('fossor.plugin.Plugin.shell_call') as mocked_shell_call:
+            with patch('fossor.checks.dmesg.Dmesg._get_boot_time') as mocked_get_boot_time:
+                mocked_get_boot_time.return_value = 1509664739.8043845 - 2069605.89
+                text = StringIO(initial_value=example_dmesg_output)
+                mocked_shell_call.return_value = (text, '', 0)
+                result = d.run(variables)
+                assert 'USB disconnect, device number 39' in result
+                assert len(result.splitlines()) == 1

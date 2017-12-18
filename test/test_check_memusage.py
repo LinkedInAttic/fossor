@@ -3,14 +3,14 @@
 
 import mock
 
-from fossor.checks.memusage import MemUsage
-
 
 @mock.patch('platform.system')
 @mock.patch('fossor.checks.memusage.MemUsage.get_meminfo')
 @mock.patch('fossor.checks.memusage.MemUsage.get_time')
 @mock.patch('fossor.plugin.Plugin.shell_call')
-def test_mem_usage(sc_mock, time_mock, mem_mock, ps_mock):
+@mock.patch('fossor.utils.misc.common_path', return_value='/usr/bin/dmesg')
+def test_mem_usage(cp_mock, sc_mock, time_mock, mem_mock, ps_mock):
+    from fossor.checks.memusage import MemUsage
 
     line1 = '[11686.040460] flasherav invoked oom-killer: gfp_mask=0x201da, order=0, oom_adj=0, oom_score_adj=0'
     line2 = '[4680581.563150] perl invoked oom-killer: gfp_mask=0x380da, order=0, oom_score_adj=0'

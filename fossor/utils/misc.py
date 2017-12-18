@@ -3,6 +3,7 @@
 
 import sys
 import logging
+import os
 import psutil
 import time
 
@@ -148,3 +149,13 @@ def get_traceback_variables():
             line = line.format(key=key, value=value)
             output.append(line)
     return '\n'.join(output)
+
+
+def common_path(binaries):
+    '''Returns the first file that os.path.isfile() from the supplied list of binaries. If none
+    of the supplied list of files exist, a FileNoteFoundError is raised.'''
+
+    for filename in binaries:
+        if os.path.isfile(filename):
+            return filename
+    raise FileNotFoundError(', '.join(binaries))

@@ -8,7 +8,7 @@ import logging
 
 from datetime import datetime, timedelta
 from fossor.checks.check import Check
-from fossor.utils.misc import iswithintimerange
+from fossor.utils.misc import iswithintimerange, common_path
 
 TIME_FORMAT = '%b %d %H:%M:%S'
 
@@ -25,7 +25,7 @@ class Dmesg(Check):
 
     def _getdmesgoutput(self, start_time=None, end_time=None):
         result = []
-        out, err, returncode = self.shell_call('/usr/bin/dmesg', stream=True)
+        out, err, returncode = self.shell_call(common_path(['/usr/bin/dmesg', '/bin/dmesg']), stream=True)
         boot_time = self._get_boot_time()
 
         dmesg_pattern = re.compile('\[(.*?)\] (.*)')
