@@ -1,12 +1,12 @@
 # Copyright 2017 LinkedIn Corporation. All rights reserved. Licensed under the BSD-2 Clause license.
 # See LICENSE in the project root for license information.
 
-import mock
+from unittest.mock import patch
 from fossor.variables.other_users import OtherUsers
 
 
-@mock.patch('fossor.variables.other_users.getuser')
-@mock.patch('fossor.plugin.Plugin.shell_call')
+@patch('fossor.variables.other_users.getuser')
+@patch('fossor.plugin.Plugin.shell_call')
 def test_other_users(sc_mock, user_mock):
     current_user = 'brodriguez'
     user_mock.return_value = current_user

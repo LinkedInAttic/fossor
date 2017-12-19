@@ -1,14 +1,14 @@
 # Copyright 2017 LinkedIn Corporation. All rights reserved. Licensed under the BSD-2 Clause license.
 # See LICENSE in the project root for license information.
 
-import mock
+from unittest.mock import patch
 
 
-@mock.patch('platform.system')
-@mock.patch('fossor.checks.memusage.MemUsage.get_meminfo')
-@mock.patch('fossor.checks.memusage.MemUsage.get_time')
-@mock.patch('fossor.plugin.Plugin.shell_call')
-@mock.patch('fossor.utils.misc.common_path', return_value='/usr/bin/dmesg')
+@patch('platform.system')
+@patch('fossor.checks.memusage.MemUsage.get_meminfo')
+@patch('fossor.checks.memusage.MemUsage.get_time')
+@patch('fossor.plugin.Plugin.shell_call')
+@patch('fossor.utils.misc.common_path', return_value='/usr/bin/dmesg')
 def test_mem_usage(cp_mock, sc_mock, time_mock, mem_mock, ps_mock):
     from fossor.checks.memusage import MemUsage
 

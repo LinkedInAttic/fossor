@@ -1,13 +1,13 @@
 # Copyright 2017 LinkedIn Corporation. All rights reserved. Licensed under the BSD-2 Clause license.
 # See LICENSE in the project root for license information.
 
-import mock
+from unittest.mock import patch
 
 from fossor.checks.buddyinfo import BuddyInfo
 
 
-@mock.patch('fossor.checks.buddyinfo.BuddyInfo._getpagesize')
-@mock.patch('fossor.plugin.Plugin.shell_call')
+@patch('fossor.checks.buddyinfo.BuddyInfo._getpagesize')
+@patch('fossor.plugin.Plugin.shell_call')
 def test_buddyinfo_report(sc_mock, pagesize_mock):
     expected = """\
 No significant memory fragmentation
@@ -31,8 +31,8 @@ Node 0, zone   Normal  74469  83969 174582 227090 116398  48054  23129  13454   
     assert result == expected
 
 
-@mock.patch('fossor.checks.buddyinfo.BuddyInfo._getpagesize')
-@mock.patch('fossor.plugin.Plugin.shell_call')
+@patch('fossor.checks.buddyinfo.BuddyInfo._getpagesize')
+@patch('fossor.plugin.Plugin.shell_call')
 def test_buddyinfo_fragmentation(sc_mock, pagesize_mock):
     out = """\
 Node 0, zone      DMA      2      1      1      1      1      0      1      0      1      1      3
@@ -48,7 +48,7 @@ Node 0, zone   Normal  74469  83969      0      0      0      0      0      0   
     assert buddy.fragmentation()
 
 
-@mock.patch('fossor.plugin.Plugin.shell_call')
+@patch('fossor.plugin.Plugin.shell_call')
 def test_get_page_size(sc_mock):
     out = '4096'
     err = ''

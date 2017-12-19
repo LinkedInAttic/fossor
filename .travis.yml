@@ -1,0 +1,8 @@
+language: python
+python:
+  - "3.6"
+script:
+  - tox
+install:
+  - pip install tox
+  - python setup.py -q install

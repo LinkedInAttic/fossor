@@ -1,12 +1,12 @@
 # Copyright 2017 LinkedIn Corporation. All rights reserved. Licensed under the BSD-2 Clause license.
 # See LICENSE in the project root for license information.
 
-import mock
+from unittest.mock import patch
 
 from fossor.checks.diskusage import DiskUsage
 
 
-@mock.patch('fossor.plugin.Plugin.shell_call')
+@patch('fossor.plugin.Plugin.shell_call')
 def test_disk_usage(sc_mock):
     out = 'Filesystem     1K-blocks      Used Available Use% Mounted on\n' \
           '/dev/sda2       407G  318G   69G  99% /\n' \
