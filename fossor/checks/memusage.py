@@ -5,6 +5,7 @@ import time
 import re
 import platform
 from fossor.checks.check import Check
+from fossor.utils.misc import common_path
 
 
 class MemUsage(Check):
@@ -24,7 +25,7 @@ class MemUsage(Check):
         used = meminfo['MemTotal'] - act_free
         perc_used = (used/meminfo['MemTotal'])*100
 
-        out, err, return_code = self.shell_call('dmesg')
+        out, err, return_code = self.shell_call(common_path(['/usr/bin/dmesg', '/bin/dmesg']))
 
         if perc_used >= CRITICAL_THRESH or 'oom-killer' in out:
             res = 'High Memory Use!\nMemTotal: {0:.0f} kib\nUsed: {1:.0f} kib ({2:.0f}%)'.format(

@@ -2,7 +2,6 @@
 # See LICENSE in the project root for license information.
 
 import mock
-import pytest
 
 from fossor.checks.netiface_errors import NetIFace
 
