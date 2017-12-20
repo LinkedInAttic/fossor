@@ -9,7 +9,6 @@ from setuptools.command.test import test as TestCommand
 
 
 class Tox(TestCommand):
-
     def run_tests(self):
         import tox
 
@@ -20,6 +19,13 @@ class Tox(TestCommand):
             errno = e.code
         sys.exit(errno)
 
+
+class PyTest(TestCommand):
+    def run_tests(self):
+        import pytest
+
+        errno = pytest.main()
+        sys.exit(errno)
 
 description = 'A plugin oriented tool for automating the investigation of broken hosts and services.'
 try:
@@ -49,7 +55,10 @@ setup(
         'PTable>=0.9.2',
         'setuptools>=30',
     ],
-    cmdclass={'test': Tox},
+    cmdclass={'test': PyTest,
+              'pytest': PyTest,
+              'tox': Tox,
+              },
     tests_require=[
         'pytest>=3.0.6',
         'flake8>=3.5.0',
