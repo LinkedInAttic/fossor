@@ -3,6 +3,8 @@ python:
   - "3.6"
 script:
   - tox
+  - coveralls
 install:
   - pip install tox
+  - pip install coveralls
   - python setup.py -q install
