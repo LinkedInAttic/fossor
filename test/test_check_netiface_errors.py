@@ -1,7 +1,7 @@
 # Copyright 2017 LinkedIn Corporation. All rights reserved. Licensed under the BSD-2 Clause license.
 # See LICENSE in the project root for license information.
 
-import mock
+from unittest.mock import patch
 
 from fossor.checks.netiface_errors import NetIFace
 
@@ -19,9 +19,9 @@ def test_parse_sar():
     assert sar.txcarr == '4096.00'
 
 
-@mock.patch('fossor.plugin.Plugin.shell_call')
-@mock.patch('platform.system')
-@mock.patch('os.path.isdir')
+@patch('fossor.plugin.Plugin.shell_call')
+@patch('platform.system')
+@patch('os.path.isdir')
 def test_disk_usage(isdir_mock, system_mock, sc_mock):
     """Validate the response from for run() is correct."""
     out = 'Average:         ppp0      0.00      0.00      0.00      0.00      1.00      0.00      0.00      0.00      0.00'

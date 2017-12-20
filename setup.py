@@ -2,8 +2,23 @@
 # See LICENSE in the project root for license information.
 
 import io
+import sys
 
 from setuptools import setup, find_packages
+from setuptools.command.test import test as TestCommand
+
+
+class Tox(TestCommand):
+
+    def run_tests(self):
+        import tox
+
+        errno = -1
+        try:
+            tox.session.main()
+        except SystemExit as e:
+            errno = e.code
+        sys.exit(errno)
 
 
 description = 'A plugin oriented tool for automating the investigation of broken hosts and services.'
@@ -24,20 +39,22 @@ setup(
     license='License :: OSI Approved :: BSD License',
     packages=find_packages(),
     install_requires=[
-        'asciietch==1.0.1',
-        'click==6.7',
-        'psutil==5.4.1',
-        'setproctitle==1.1.10',
-        'requests==2.18.4',
-        'humanfriendly==4.4.1',
-        'parsedatetime==2.4',
-        'PTable==0.9.2',
+        'asciietch>=1.0.2',
+        'click>=6.7',
+        'psutil>=5.4.1',
+        'setproctitle>=1.1.10',
+        'requests>=2.18.4',
+        'humanfriendly>=4.4.1',
+        'parsedatetime>=2.4',
+        'PTable>=0.9.2',
+        'setuptools>=30',
     ],
+    cmdclass={'test': Tox},
     tests_require=[
         'pytest>=3.0.6',
         'flake8>=3.5.0',
-        'mock>=2.0.0'
         'pytest-timeout>=1.2.0',
+        'tox'
     ],
     entry_points={
         'console_scripts': [

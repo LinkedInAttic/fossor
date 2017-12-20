@@ -87,12 +87,12 @@ def test_get_variables():
 
 def test_common_path_found():
     '''Assert that the binary is found on the filesystem.'''
-    with patch('os.path.exists', return_value=True):
+    with patch('os.path.isfile', return_value=True):
         assert common_path(['/usr/bin/dmesg', '/bin/dmesg']) == '/usr/bin/dmesg'
 
 
 def test_common_path_is_not_found():
     '''Assert that the binary is not present the filesystem.'''
-    with patch('os.path.exists', return_value=False):
+    with patch('os.path.isfile', return_value=False):
         with pytest.raises(FileNotFoundError):
             common_path(['amiga/1200/GuruMeditationError'])
