@@ -22,7 +22,7 @@ default_plugin_dir = '/opt/fossor'
 
 def setup_logging(ctx, param, value):
     level = logging.CRITICAL
-    if value is True:
+    if value:
         level = logging.DEBUG
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.basicConfig(stream=sys.stderr, level=level)
