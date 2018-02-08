@@ -133,7 +133,6 @@ def main(context, **kwargs):
     """  # \b makes click library honor paragraphs
 
     f = Fossor()
-
     f.run(**kwargs)
 
 
