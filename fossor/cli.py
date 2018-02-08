@@ -113,12 +113,31 @@ def add_dynamic_args(function):
     return wrapper
 
 
-def set_process_title(function):
-    @wraps(function)
-    def wrapper(*args, **kwargs):
-        setproctitle.setproctitle('fossor ' + ' '.join(sys.argv[1:]))
-        function(*args, **kwargs)
-    return wrapper
+def set_process_title(arg=None):
+    '''
+    Decorator for setting the process title
+    Can be applied in two ways:
+    @set_process_title
+    @set_process_title('new_process_title')
+
+    Defaults to 'fossor'
+
+    '''
+    title = 'fossor'
+    if type(arg) == str:
+        title = arg
+
+    def real_decorator(function):
+        @wraps(function)
+        def wrapper(*args, **kwargs):
+            setproctitle.setproctitle(title + ' ' + ' '.join(sys.argv[1:]))
+            function(*args, **kwargs)
+        return wrapper
+    # If called as @set_process_title
+    if callable(arg):
+        return real_decorator(arg)
+    # If called as @set_process_title('new_title')
+    return real_decorator
 
 
 @fossor_cli_flags
