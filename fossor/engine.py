@@ -102,12 +102,16 @@ class Fossor(object):
     def add_plugins(self, source=fossor):
         '''
         Recursively return a dict of plugins (classes) that inherit from the given parent_class) from within that source.
-        source accepts a path as a string or a module.
+        source accepts either a python module or a filesystem path as a string.
         '''
+        if source is None:
+            return
+
         if type(source) == str:
             modules = self._import_submodules_by_path(path=source)
         else:
             modules = self._import_submodules_by_module(source)
+
         for module in modules:
             for obj_name, obj in module.__dict__.items():
                 # Get objects from each module that look like plugins for the Check abstract class
@@ -282,6 +286,11 @@ class Fossor(object):
 
         return value
 
+    def add_variables(self, **kwargs):
+        for name, value in kwargs.items():
+            self.add_variable(name=name, value=value)
+        return True
+
     def add_variable(self, name, value):
         '''Adds variable, converts numbers and booleans to their types'''
         if name in self.variables:
@@ -295,21 +304,35 @@ class Fossor(object):
         self.log.debug("Added variable {name} with value of {value} (type={type})".format(name=name, value=value, type=type(value)))
         return True
 
-    def run(self, report='StdOut', check_whitelist=[], check_blacklist=[], variable_plugin_whitelist=[], variable_plugin_blacklist=[]):
+    def _process_whitelist(self, whitelist):
+        if whitelist:
+            whitelist = [name.casefold() for name in whitelist]
+            self.variable_plugins = {plugin for plugin in self.variable_plugins if plugin.get_name().casefold() in whitelist}
+            self.check_plugins = {plugin for plugin in self.check_plugins if plugin.get_name().casefold() in whitelist}
+
+    def _process_blacklist(self, blacklist):
+        if blacklist:
+            blacklist = [name.casefold() for name in blacklist]
+            self.variable_plugins = {plugin for plugin in self.variable_plugins if plugin.get_name().casefold() not in blacklist}
+            self.check_plugins = {plugin for plugin in self.check_plugins if plugin.get_name().casefold() not in blacklist}
+
+    def run(self, report='StdOut', **kwargs):
         '''Runs Fossor with the given report. Method returns a string of the report output.'''
+        self.log.debug("Starting Fossor")
+
+        self._process_whitelist(kwargs.get('whitelist'))
+        self._process_blacklist(kwargs.get('blacklist'))
+
+        # Add kwargs as variables
+        self.add_variables(**kwargs)
+
+        # Add directory plugins
+        self.add_plugins(kwargs.get('plugin_dir'))
 
         # Gather Variables
-        if variable_plugin_whitelist:
-            self.variable_plugins = {plugin for plugin in self.variable_plugins if plugin.get_name() in variable_plugin_whitelist}
-        for variable_plugin in variable_plugin_blacklist:
-            self.variable_plugins = {plugin for plugin in self.variable_plugins if plugin.get_name() not in variable_plugin_blacklist}
         self.get_variables()
 
-        # Run Checks
-        if check_whitelist:
-            self.check_plugins = {plugin for plugin in self.check_plugins if plugin.get_name() in check_whitelist}
-        if check_blacklist:
-            self.check_plugins = {plugin for plugin in self.check_plugins if plugin.get_name() not in check_blacklist}
+        # Run checks
         output_queue = self._run_plugins_parallel(self.check_plugins)
 
         # Run Report

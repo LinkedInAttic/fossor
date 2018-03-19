@@ -82,11 +82,14 @@ Several ways to use your own plugins with Fossor
 3. Build and wrap Fossor
    - Fossor is both a CLI and a Python library. Import the Fossor engine into your own tool, and add any local plugins you've made by passing a module or a filesystem path to add_plugins().
    ```python
-   from fossor.engine import Fossor
-   from fossor.cli import main
-   f = Fossor()
-   f.add_plugins('/opt/fossor')
-   main()
+    from fossor.engine import Fossor
+    from fossor.cli import main
+
+    @fossor_cli_flags
+    def main(context, **kwargs):
+        f = Fossor()
+
+        f.run(**kwargs)
    ```
 
 ### Example Plugins

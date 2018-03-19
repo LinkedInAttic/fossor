@@ -33,41 +33,25 @@ def test_convert_simple_type():
     assert type(f._convert_simple_type('foo')) == str
 
 
-def test_variable_plugin_whitelist():
+def test_plugin_whitelist():
     f = Fossor()
     f.add_variable('timeout', 1)
     assert len(f.variable_plugins) > 2
-    whitelist = ['Hostname', 'PidExe']
-    f.run(variable_plugin_whitelist=whitelist)
+    assert len(f.check_plugins) > 2
+    whitelist = ['BuddyInfo', 'LoadAvg', 'hostname', 'pidexe']  # Should be case insensitive
+    f.run(whitelist=whitelist)
     assert len(f.variable_plugins) == 2
+    assert len(f.check_plugins) == 2
 
 
-def test_variable_plugin_blacklist():
+def test_plugin_blacklist():
     f = Fossor()
     f.add_variable('timeout', 1)
     assert fossor.variables.hostname.Hostname in f.variable_plugins
-    blacklist = ['Hostname']
-    f.run(variable_plugin_blacklist=blacklist)
+    blacklist = ['hostname', 'BuddyInfo', 'LoadAvg']  # Should be case insensitive
+    f.run(blacklist=blacklist)
     assert 'Hostname' not in f.variable_plugins
+    assert 'BuddyInfo' not in f.check_plugins
+    assert 'LoadAvg' not in f.check_plugins
     assert len(f.variable_plugins) > 0
-
-
-def test_check_plugin_whitelist():
-    f = Fossor()
-    f.add_variable('timeout', 1)
-    assert len(f.check_plugins) > 2
-    whitelist = ['BuddyInfo', 'LoadAvg']
-    f.run(check_whitelist=whitelist)
-    assert len(f.check_plugins) == 2
-    assert fossor.checks.buddyinfo.BuddyInfo in f.check_plugins
-
-
-def test_check_plugin_blacklist():
-    f = Fossor()
-    f.add_variable('timeout', 1)
-    assert len(f.check_plugins) > 2
-    assert fossor.checks.buddyinfo.BuddyInfo in f.check_plugins
-    blacklist = ['BuddyInfo', 'LoadAvg']
-    f.run(check_blacklist=blacklist)
-    assert fossor.checks.buddyinfo.BuddyInfo not in f.check_plugins
-    assert len(f.check_plugins) > 1
+    assert len(f.check_plugins) > 0
