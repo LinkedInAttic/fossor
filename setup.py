@@ -36,7 +36,7 @@ except IOError:
 
 setup(
     name='fossor',
-    version='1.0.0',
+    version='1.1.0',
     description=description,
     long_description=description,
     url='https://github.com/linkedin/fossor',
