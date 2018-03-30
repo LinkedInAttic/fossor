@@ -8,8 +8,7 @@ class ListVariables(Check):
 
     def run(self, variables):
         '''If verbose is on, list all variables in use'''
-        verbose = variables.get('verbose')
-        if not verbose:
-            return
-        result = [f"{name}={value}" for name, value in variables.items()]
-        return "\n".join(result)
+        verbose = variables.get('verbose', None)
+        if verbose:
+            result = [f"{name}={value}" for name, value in variables.items()]
+            return "\n".join(result)

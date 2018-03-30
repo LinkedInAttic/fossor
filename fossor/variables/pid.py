@@ -10,30 +10,31 @@ from fossor.utils.misc import psutil_exceptions
 
 class Pid(Variable):
     def run(self, variables):
-        if 'Product' not in variables:
-            return
-        product = variables['Product']
-        for p in psutil.process_iter():
-            try:
-                if product.startswith(p.name()):
-                    return p.pid
-            except psutil_exceptions:
-                continue
+        product = variables.get('Product', None)
+        if product:
+            for p in psutil.process_iter():
+                try:
+                    if product.lower().startswith(p.name().lower()):
+                        return p.pid
+                except psutil_exceptions:
+                    continue
 
 
 class PidCwd(Variable):
     def run(self, variables):
-        if 'Pid' in variables:
+        pid = variables.get('Pid', None)
+        if pid:
             try:
-                return os.readlink('/proc/{pid}/cwd'.format(pid=variables['Pid']))
+                return os.readlink(f'/proc/{pid}/cwd')
             except PermissionError:
                 pass
 
 
 class PidExe(Variable):
     def run(self, variables):
-        if 'Pid' in variables:
+        pid = variables.get('Pid', None)
+        if pid:
             try:
-                return os.readlink('/proc/{pid}/exe'.format(pid=variables['Pid']))
+                return os.readlink(f'/proc/{pid}/exe')
             except PermissionError:
                 pass

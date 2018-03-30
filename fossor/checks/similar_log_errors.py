@@ -2,7 +2,7 @@
 # See LICENSE in the project root for license information.
 
 from difflib import SequenceMatcher
-from multiprocessing import Pool
+from multiprocessing import Pool, cpu_count
 
 from fossor.checks.check import Check
 
@@ -29,14 +29,15 @@ class SimilarLogErrors(Check):
     def run(self, variables):
         result = ''
 
-        if 'LogFiles' not in variables:
+        log_files = variables.get('LogFiles', None)
+        if not log_files:
             return
 
-        log_files = variables['LogFiles']
         log_files = self._remove_blacklisted_logs(log_files)
         self.log.debug(f"log_files: {log_files}")
 
-        pool = Pool(len(log_files))
+        max_pool_threads = cpu_count() * 2
+        pool = Pool(max_pool_threads)
         pool_results = pool.map(self.get_error_pattern_counts, log_files)
 
         for filename, common_lines in pool_results:
