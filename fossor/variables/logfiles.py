@@ -7,9 +7,10 @@ from fossor.variables.variable import Variable
 
 class LogFiles(Variable):
     def run(self, variables):
-        if 'Pid' not in variables:
+        pid = variables.get('Pid', None)
+        if not pid:
             return
-        pid = int(variables['Pid'])
+
         p = psutil.Process(pid)
         log_files = None
 

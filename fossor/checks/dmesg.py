@@ -16,8 +16,8 @@ TIME_FORMAT = '%b %d %H:%M:%S'
 class Dmesg(Check):
 
     def run(self, variables):
-        start_time = int(variables['start_time']) if 'start_time' in variables else None
-        end_time = int(variables['end_time']) if 'end_time' in variables else None
+        start_time = variables.get('start_time', None)
+        end_time = variables.get('end_time', None)
 
         result = self._getdmesgoutput(start_time=start_time, end_time=end_time)
         if result:

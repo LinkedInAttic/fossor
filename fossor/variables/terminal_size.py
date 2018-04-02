@@ -20,6 +20,6 @@ class TerminalWidth(Variable):
 class MaxPluginOutputWidth(Variable):
     def run(self, variables):
         '''If plugins keep their output width under this amount, they won't be truncated.'''
-        if 'TerminalWidth' not in variables:
-            return
-        return int(variables['TerminalWidth']) - TABLE_FORMATTING_WIDTH
+        terminal_width = variables.get('TerminalWidth', None)
+        if terminal_width:
+            return terminal_width - TABLE_FORMATTING_WIDTH

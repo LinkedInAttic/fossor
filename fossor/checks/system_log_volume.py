@@ -23,9 +23,9 @@ class SystemLogVolume(Check):
 
     def run(self, variables: dict):
         '''Print back system graphs if log volume has changed significantly.'''
-        start_time = variables['start_time'] if 'start_time' in variables else None
-        end_time = variables['end_time'] if 'end_time' in variables else None
-        max_width = variables['MaxPluginOutputWidth'] if 'MaxPluginOutputWidth' in variables else None
+        start_time = variables.get('start_time', None)
+        end_time = variables.get('end_time', None)
+        max_width = variables.get('MaxPluginOutputWidth', None)
 
         file_line_counts = self.get_line_counts(start_time, end_time)
         g = Grapher()
