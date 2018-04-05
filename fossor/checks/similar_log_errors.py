@@ -3,6 +3,7 @@
 
 from difflib import SequenceMatcher
 from multiprocessing import Pool, cpu_count
+from collections import OrderedDict
 
 from fossor.checks.check import Check
 
@@ -12,8 +13,8 @@ class SimilarLogErrors(Check):
 
     # TODO add table formatting to show diffs over time?
 
-    SIMILARITY_RATIO = 0.7
-    MAX_COMMON_LINES = 20
+    SIMILARITY_RATIO = 0.7  # Lines but be at least 70% similar in order to be counted.
+    MAX_COMMON_LINES = 20  # Only track similarity ratios for up to 20 lines.
 
     # Logs matching these strings will not be included
     log_name_blacklist = ['_configuration.log',
@@ -42,8 +43,16 @@ class SimilarLogErrors(Check):
 
         for filename, common_lines in pool_results:
             lines = []
-            for line, count in sorted(common_lines.items(), reverse=True, key=lambda x: x[1]):  # Sort by count
-                lines.append(f"Count: {count}. {line.strip()}")
+            for line, values in common_lines.items():  # Sort by count
+                count = values['count']
+                first_seen = values.get('first_seen', None)
+                first_seen_text = ''
+                if first_seen:
+                    first_seen_text = f"First seen: {first_seen}, "
+                count_text = f"Count: {count}, "
+                line_text = f"{line.strip()}"
+                text = first_seen_text + count_text + line_text
+                lines.append(text)
             if lines:
                 result += f"filename: {filename}\n"
                 result += '\n'.join(lines) + '\n\n'
@@ -59,61 +68,73 @@ class SimilarLogErrors(Check):
         return log_files
 
     def get_error_pattern_counts(self, filename):
-        common_lines = {}
+        common_lines = OrderedDict()
         self.log.debug(f"Processing filename: {filename}")
         f = open(filename, 'rt')
         for line in f.readlines():
-            line = self._process_line(line)
+            line, date = self._process_line(line)
             if not line:
                 continue
 
             # Group similar log lines
-            common_lines = self._group_similar_log_lines(line=line, common_lines=common_lines)
+            common_lines = self._group_similar_log_lines(line=line, date=date, common_lines=common_lines)
 
         self.log.debug(f"Finished processing filename: {filename}")
         return filename, common_lines
 
     def _process_line(self, line):
+        '''Returns line and timestamp from line, returns None if line should be ignored'''
+        date = None
         first_character = line[0]
 
         # Skip certain log lines
         # Skip since this is the lower portion of a stacktrace
         if first_character.isspace():
-            return
+            line = None
         # Line did not start with a date
         elif first_character.isalpha() and 'Exception' not in line:
-            return
+            line = None
         elif line.startswith('Caused by'):
-            return
-        # Check for an error level
+            line = None
+        # Check for date and error level
         elif first_character.isdigit():
             line_split = line.split()
             try:
                 line_level = line_split[2]
+                if line_level != 'ERROR':
+                    line = None
+                else:
+                    line = ' '.join(line_split[2:])  # Remove date portion from line
+                    date = ' '.join(line_split[:2])
+                    # Truncate line
+                    line = f"{line:.200}"
             except IndexError as e:
                 self.log.debug(f"IndexError parsing line: {line}")
-                return
-            if line_level != 'ERROR':
-                return
-            line = ' '.join(line_split[2:])  # Remove date portion from line
-        # Truncate line
-        line = f"{line:.200}"
-        return line
+                line = None
+        return line, date
 
-    def _group_similar_log_lines(self, line, common_lines):
+    def _group_similar_log_lines(self, line, date, common_lines):
         highest_similarity_ratio = 0
         most_similar_line = None
-        for common_line in common_lines:
+        for common_line in common_lines.keys():
             similarity_ratio = SequenceMatcher(a=common_line, b=line).quick_ratio()
+            # Find the most similar line
             if similarity_ratio > highest_similarity_ratio:
                 highest_similarity_ratio = similarity_ratio
                 most_similar_line = common_line
 
+        # Count the line if it is similar to another line
         if highest_similarity_ratio > self.SIMILARITY_RATIO:
-            common_lines[most_similar_line] += 1
-        elif len(common_lines) < self.MAX_COMMON_LINES:
-            common_lines[line] = 1
-        else:
-            common_lines.setdefault('Other Error Lines', 0)
-            common_lines['Other Error Lines'] += 1
+            self.log.debug(f"Line had a ratio of {highest_similarity_ratio}, incrementing count. New line: {line}, Old line: {most_similar_line}")
+            line = most_similar_line
+        # Do we already have too many unique lines?
+        elif len(common_lines) >= self.MAX_COMMON_LINES:
+            line = 'Other Error Lines'
+            self.log.debug(f"Too many unique lines, {len(common_lines)} of {self.MAX_COMMON_LINES}, adding this to category: {line}")
+
+        self.log.debug(f"Line {line} had a ratio of {highest_similarity_ratio} which was under the threshold of {self.SIMILARITY_RATIO}, counting this line as unique.")
+        values = common_lines.setdefault(line, {})
+        values['count'] = values.get('count', 0) + 1
+        if date:
+            values.setdefault('first_seen', date)
         return common_lines
