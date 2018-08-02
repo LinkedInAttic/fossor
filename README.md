@@ -133,4 +133,4 @@ Example: `fossor --pid 3420 --verbose  OverrideVariableForTesting="value"`
 ### How do I make my plugin always emit output when --verbose is in use?
 To do this override the should\_notify method. The checks/buddyinfo.py plugin has an example of this. If should\_notify is overridden, it becomes a boolean method that indicates if the normal non-verbose report should display output. This means the check can always return a string without it necessarily being "interesting".
 ### I still have a question not answered here
-Feel free to reach out to [scallister@linkedin.com](mailto:scallister@linkedin.com)
+Feel free to reach out on the Fossor [Gitter channel](https://gitter.im/linkedinfossor/Lobby).
