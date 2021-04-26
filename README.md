@@ -128,7 +128,7 @@ Yes, as long as the software it is checking is publicly available software.
 ### Can my plugin break Fossor?
 It's possible, but Fossor tries to prevent it by isolating each plugin in its own process. If your plugin breaks, by default it will not show up in the report unless --debug is being used. If you've found a way to break Fossor and not just your own plugin, lets patch it :).
 ### How do I run Fossor with a specific variable overridden?
-In addition to supporting the flags listed in --help, Bender also supports a generic format for inserting variables. The format is: variablename="value". This is intended for testing only. Ideally, all you need to type when you login to a machine is "fossor", or "fossor --pid <pid>".
+In addition to supporting the flags listed in --help, Fossor also supports a generic format for inserting variables. The format is: variablename="value". This is intended for testing only. Ideally, all you need to type when you login to a machine is "fossor", or "fossor --pid <pid>".
 Example: `fossor --pid 3420 --verbose  OverrideVariableForTesting="value"`
 ### How do I make my plugin always emit output when --verbose is in use?
 To do this override the should\_notify method. The checks/buddyinfo.py plugin has an example of this. If should\_notify is overridden, it becomes a boolean method that indicates if the normal non-verbose report should display output. This means the check can always return a string without it necessarily being "interesting".
